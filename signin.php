@@ -3,74 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign In</title>
+    <title>Full-Screen Photo Carousel</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
             box-sizing: border-box;
-            text-align: center;
         }
 
-        h2 {
-            color: #333;
+        body {
+            font-family: Arial, sans-serif;
+            overflow: hidden;
         }
 
-        .button-container {
-            margin-top: 20px;
+        .carousel-container {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
         }
 
-        button {
+        .carousel-images {
+            display: flex;
+            width: 100%; /* 5 images */
+            height: 100%;
+            animation: slide 10s infinite;
+        }
+
+        .carousel-images img {
             width: 100%;
-            padding: 10px;
-            background-color: #333;
-            color: #fff;
-            font-size: 16px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-bottom: 10px;
+            height: 100%;
+            object-fit: cover;
+            flex-shrink: 0;
         }
 
-        button:hover {
-            background-color: #555;
-        }
-
-        .error-message {
-            color: red;
+        .center-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
+            color: white;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+
+        }
+
+        .center-content h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            
+        }
+
+        .center-content p {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .center-content button {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #f08c35;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        .center-content button:hover {
+            background-color: #d4732b;
+        }
+
+        @keyframes slide {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(0); }
+            25% { transform: translateX(-100%); }
+            45% { transform: translateX(-100%); }
+            50% { transform: translateX(-200%); }
+            70% { transform: translateX(-200%); }
+            75% { transform: translateX(-300%); }
+            95% { transform: translateX(-300%); }
+            100% { transform: translateX(-400%); }
         }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h2>Welcome</h2>
-        <p>Choose an option below:</p>
-
-        <div class="button-container">
-            <!-- Sign Up Button (You can link this to your sign-up page later) -->
-            <button onclick="window.location.href='signup.php';">Sign Up</button>
+    <div class="carousel-container">
+        <div class="carousel-images">
+            <img src="assets/homepagephotos/hp1.jpg" alt="Image 1">
+            <img src="assets/homepagephotos/hp2.jpg" alt="Image 2">
+            <img src="assets/homepagephotos/hp3.jpg" alt="Image 3">
+            <img src="assets/homepagephotos/hp4.jpg" alt="Image 4">
             
-            <!-- Log In Button -->
+            <img src="assets/homepagephotos/hp1.jpg" alt="Image 5">
+        </div>
+
+        <div class="center-content">
+            <h1>Welcome to BabyBoo</h1>
+            <p>Your one-stop destination for baby care!</p>
             <button onclick="window.location.href='login.php';">Log In</button>
+
+            <button onclick="alert('Sign Up functionality coming soon!')">Sign Up</button>
         </div>
     </div>
-
 </body>
 </html>
