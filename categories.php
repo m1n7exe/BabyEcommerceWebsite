@@ -8,74 +8,91 @@ require 'db_connection.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories</title>
+    <title>Shop by Category</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            background-color: #ffe4e1; /* Baby Pink */
             margin: 0;
             padding: 0;
         }
 
         header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 0;
-            text-align: center;
-        }
+    background-color: #ff69b4; /* Hot Pink */
+    color: white;
+    padding: 8px 0;  /* Reduced padding for a smaller header */
+    text-align: center;
+    font-size: 1.2rem;  /* Adjusted font size to be smaller */
+    margin-bottom: 10px;
+}
 
         .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
+            max-width: 900px; /* Reduced container width */
+            margin: 30px auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Adjusted grid layout */
+            gap: 20px; /* Reduced the gap between cards */
+            padding: 0 15px;
+            margin-top: 50px;
         }
 
         .category-card {
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: transform 0.3s ease-in-out;
-        }
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Ensures the content is spaced evenly */
+    height: 100%; /* Makes the card stretch to fill available space */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
 
         .category-card:hover {
             transform: scale(1.05);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
         }
 
         .category-card img {
             width: 100%;
-            height: 200px;
-            object-fit: cover;
+            height: 180px; /* Adjusted image height for less zoomed-in effect */
+            object-fit: contain; /* Changed object-fit to 'contain' for better image fit */
         }
 
         .category-card h2 {
             padding: 15px;
-            font-size: 1.5em;
-            background-color: #4CAF50;
+            font-size: 1.4rem;
+            background-color: #ff69b4; /* Hot Pink */
             color: white;
             margin: 0;
+            text-transform: uppercase;
+        }
+
+        .category-card p {
+            padding: 15px;
+            font-size: 1rem;
+            color: #555;
         }
 
         .category-card a {
-            display: block;
-            padding: 15px;
-            background-color: #4CAF50;
+            display: inline-block;
+            padding: 8px 16px; /* Adjusted padding for a smaller button */
+            font-size: 1rem; /* Smaller font size for the button */
             color: white;
+            background-color: #ff69b4; /* Hot Pink */
             text-decoration: none;
-            font-size: 1.2em;
             text-transform: uppercase;
-            transition: background-color 0.3s ease;
+            border-radius: 5px; /* Rounded corners for the button */
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         .category-card a:hover {
-            background-color: #45a049;
+            background-color: #ff1493; /* Deep Pink */
+            transform: scale(1.1); /* Slight scale-up effect on hover */
         }
-
     </style>
 </head>
 <body>
@@ -99,7 +116,7 @@ require 'db_connection.php';
 
             <div class="category-card">
                 <?php if ($categoryImage) { ?>
-                    <img src="uploads/<?php echo $categoryImage; ?>" alt="Category Image">
+                    <img src="assets/ECAD2024Oct_Assignment_1_Input_Files(1)/ECAD2024Oct_Assignment_1_Input_Files/Images/Category/<?php echo htmlspecialchars($categoryImage); ?>" alt="Category Image">
                 <?php } else { ?>
                     <img src="https://via.placeholder.com/300x200?text=No+Image" alt="Category Image">
                 <?php } ?>
