@@ -1,6 +1,8 @@
 <?php
 session_start();
 require 'db_connection.php';
+include_once("header.php");
+
 ?>
 
 <!DOCTYPE html>

@@ -1,5 +1,7 @@
 <?php
 require 'db_connection.php';
+
+include_once("header.php");
 ?>
 
 <!DOCTYPE html>
@@ -13,11 +15,11 @@ require 'db_connection.php';
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            background-color: #fce4ec;
         }
         .header {
-            background-color: #ffdfd4;
-            color: #333;
+            background-color: #f8bbd0;
+            color: #4a148c;
             padding: 20px;
             text-align: center;
         }
@@ -33,8 +35,8 @@ require 'db_connection.php';
             justify-content: center;
         }
         .category-item {
-            background-color: #fff;
-            border: 1px solid #ddd;
+            background-color: #e1bee7;
+            border: 1px solid #ce93d8;
             border-radius: 8px;
             padding: 15px;
             text-align: center;
@@ -47,17 +49,18 @@ require 'db_connection.php';
         }
         .category-item h3 {
             margin: 10px 0;
+            color: #4a148c;
         }
         .category-item a {
             display: inline-block;
             padding: 10px 15px;
-            background-color: #ff8080;
+            background-color: #ba68c8;
             color: #fff;
             text-decoration: none;
             border-radius: 5px;
         }
         .category-item a:hover {
-            background-color: #e06666;
+            background-color: #ab47bc;
         }
     </style>
 </head>
@@ -73,13 +76,13 @@ require 'db_connection.php';
             <?php
             // Fetch categories from the database
             $sql = "SELECT * FROM Category ORDER BY CatName ASC";
-            $result = $conn->query($sql)
+            $result = $conn->query($sql);
 
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
                     echo "
                         <div class='category-item'>
-                            <img src='data:image/jpeg;base64," . base64_encode($row['CatImage']) . "' alt='{$row['CatName']}'>
+                            <img src='data:image/jpeg;base64," . base64_encode($row['CatImage']) . "' alt='" . htmlspecialchars($row['CatName']) . "'>
                             <h3>" . htmlspecialchars($row['CatName']) . "</h3>
                             <p>" . htmlspecialchars($row['CatDesc']) . "</p>
                             <a href='products.php?category_id=" . $row['CategoryID'] . "'>Shop Now</a>
