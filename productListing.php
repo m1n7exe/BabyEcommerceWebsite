@@ -68,7 +68,11 @@ $products = $result->fetch_all(MYSQLI_ASSOC);
 
 // Close the prepared statement
 $stmt->close();
+
+
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -97,7 +101,7 @@ $stmt->close();
         /* Product Grid */
         .product-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
             padding: 0 20px;
         }

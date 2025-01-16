@@ -5,6 +5,7 @@ include_once("header.php");
 
 // Initialize variables to store product details
 $productTitle = $productDesc = $productPrice = $productImage = "";
+$productQuantity = 0; // Initialize quantity variable
 
 // Check if ProductID is provided in the URL
 if (isset($_GET['ProductID'])) {
@@ -31,6 +32,7 @@ if (isset($_GET['ProductID'])) {
                 $productDesc = htmlspecialchars($product['ProductDesc']);
                 $productPrice = htmlspecialchars($product['Price']);
                 $productImage = htmlspecialchars($product['ProductImage']);
+                $productQuantity = intval($product['Quantity']); // Get quantity level
             } else {
                 // If no product is found, show an error message
                 echo "Product not found.";
@@ -55,6 +57,7 @@ if (isset($_GET['ProductID'])) {
 // Close the database connection
 mysqli_close($conn);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,122 +65,175 @@ mysqli_close($conn);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Page</title>
     <style>
+        /* General Reset */
         body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
-}
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f7f7;
+            color: #333;
+        }
 
-.product-container {
-    margin: 30px auto;
-    background-color: white;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 80%;
-    max-width: 1200px;
-    overflow: hidden;
-    display: flex;
-    justify-content: space-between; /* Keep image and details on opposite sides */
-}
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+        }
 
-.product-image {
-    width: 50%;
-    padding-left: 100px; /* Add padding to the left to move it to the right */
-    padding-top: 20px;
+        .product-image {
+            flex: 1;
+            max-width: 40%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+        }
 
-}
+        .product-image img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
 
-.product-image img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
+        .product-details {
+            flex: 2;
+            padding: 20px;
+        }
 
-.product-details {
-    width: 50%;
-    padding-left: 30px;
-}
+        .product-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 10px;
+        }
 
-.product-details h1 {
-    font-size: 32px;
-    color: #333;
-    margin-bottom: 15px;
-}
+        .price {
+            font-size: 22px;
+            color: #b12704;
+            margin-bottom: 10px;
+        }
 
-.product-details p {
-    font-size: 16px;
-    line-height: 1.6;
-    color: #555;
-    margin-bottom: 20px;
-}
+        .stock-status {
+            margin-bottom: 15px;
+        }
 
-.price {
-    font-size: 24px;
-    font-weight: bold;
-    color: #b12704;
-    margin: 20px 0;
-}
+        .in-stock {
+            color: #007600;
+            font-weight: bold;
+        }
 
-.product-actions {
-    margin-top: 20px;
-}
+        .out-of-stock {
+            color: #b12704;
+            font-weight: bold;
+        }
 
-.product-actions button {
-    padding: 12px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border: none;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    margin-right: 15px;
-}
+        .product-description {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
 
-.product-actions .buy-now {
-    background-color: #ff9900;
-    color: white;
-}
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
 
-.product-actions .add-to-cart {
-    background-color: #007600;
-    color: white;
-}
+        .actions button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-.product-actions button:hover {
-    opacity: 0.9;
-}
+        .buy-now {
+            background-color: #ffa41c;
+            color: white;
+            font-weight: bold;
+            flex: 1;
+        }
 
-.product-description {
-    background-color: #f1f1f1;
-    padding: 20px;
-    margin-top: 30px;
-    border-radius: 8px;
-}
+        .buy-now:hover {
+            background-color: #cc8500;
+        }
 
+        .buy-now:disabled {
+            background-color: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .add-to-cart {
+            background-color: #f0c14b;
+            border: 1px solid #a88734;
+            flex: 1;
+        }
+
+        .add-to-cart:hover {
+            background-color: #e2b230;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .product-image {
+                max-width: 100%;
+                margin-bottom: 20px;
+                border-right: none;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 20px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div class="product-container">
+    <div class="container">
+        <!-- Product Image -->
         <div class="product-image">
             <img src="assets/ECAD2024Oct_Assignment_1_Input_Files(1)/ECAD2024Oct_Assignment_1_Input_Files/Images/Products/<?php echo $productImage; ?>" alt="<?php echo $productTitle; ?>">
         </div>
+
+        <!-- Product Details -->
         <div class="product-details">
-            <h1><?php echo $productTitle; ?></h1>
-            <p class="price">$<?php echo $productPrice; ?></p>
-            
-            <!-- Product Action Buttons -->
-            <div class="product-actions">
-                <button class="buy-now">Buy Now</button>
-                <button class="add-to-cart">Add to Cart</button>
+            <h1 class="product-title"><?php echo $productTitle; ?></h1>
+            <p class="price">$<?php echo number_format($productPrice, 2); ?></p>
+
+            <!-- Stock Status -->
+            <div class="stock-status">
+                <?php if ($productQuantity > 0): ?>
+                    <p class="in-stock">In Stock</p>
+                    <p>Quantity Available: <?php echo $productQuantity; ?></p>
+                <?php else: ?>
+                    <p class="out-of-stock">Out of Stock</p>
+                <?php endif; ?>
             </div>
-            
-            <!-- Product Description -->
+
+            <!-- Description -->
             <div class="product-description">
-                <h3>Product Description:</h3>
+                <h3>About this item</h3>
                 <p><?php echo $productDesc; ?></p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions">
+                <button class="buy-now" <?php echo $productQuantity > 0 ? '' : 'disabled'; ?>>Buy Now</button>
+                <button class="add-to-cart">Add to Cart</button>
             </div>
         </div>
     </div>

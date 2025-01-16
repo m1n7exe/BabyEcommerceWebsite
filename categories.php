@@ -14,7 +14,7 @@ include_once("header.php");
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #ffe4e1; /* Baby Pink */
+            background-color: #fbb6c9; /* Baby Pink */
             margin: 0;
             padding: 0;
         }
@@ -98,10 +98,7 @@ include_once("header.php");
     </style>
 </head>
 <body>
-    <header>
-        <h1>Shop by Category</h1>
-    </header>
-
+  
     <div class="container">
         <?php
         // Fetch categories from the database
@@ -124,7 +121,7 @@ include_once("header.php");
                 <?php } ?>
                 <h2><?php echo htmlspecialchars($categoryName); ?></h2>
                 <p><?php echo htmlspecialchars($categoryDesc); ?></p>
-                <a href="products.php?category_id=<?php echo $categoryId; ?>">Browse Products</a>
+                <a href="productListing.php?category=<?php echo $categoryId; ?>">Browse Products</a>
             </div>
 
             <?php
