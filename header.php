@@ -9,8 +9,8 @@ $siteTitle = "Sustainability & Lifestyle Dashboard";
 $logoURL = "logo.png"; // Replace with the path to your logo file
 $navItems = [
     "Home" => "index.php",
-    "Products" => "dashboard.php",
-    "Categories" => "settings.php",
+    "Products" => "productListing.php",
+    "Categories" => "categories.php",
     "ShoppingCart" => "shoppingCart.php" // Shopping cart icon placement
 ];
 ?>
