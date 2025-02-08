@@ -1,7 +1,12 @@
 <?php
+session_start();
 require 'db_connection.php';
-
 include_once("header.php");
+
+// Fetch products on offer
+$query = "SELECT * FROM Product WHERE Offered = 1";
+$result = mysqli_query($conn, $query);
+$products = mysqli_fetch_all($result, MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -28,13 +33,13 @@ include_once("header.php");
             margin: 20px auto;
             padding: 15px;
         }
-        .category-list {
+        .category-list, .product-container {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
             justify-content: center;
         }
-        .category-item {
+        .category-item, .product-item {
             background-color: #e1bee7;
             border: 1px solid #ce93d8;
             border-radius: 8px;
@@ -43,15 +48,15 @@ include_once("header.php");
             width: 250px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
-        .category-item img {
+        .category-item img, .product-item img {
             max-width: 100%;
             border-radius: 5px;
         }
-        .category-item h3 {
+        .category-item h3, .product-item h3 {
             margin: 10px 0;
             color: #4a148c;
         }
-        .category-item a {
+        .category-item a, .product-item a {
             display: inline-block;
             padding: 10px 15px;
             background-color: #ba68c8;
@@ -59,7 +64,7 @@ include_once("header.php");
             text-decoration: none;
             border-radius: 5px;
         }
-        .category-item a:hover {
+        .category-item a:hover, .product-item a:hover {
             background-color: #ab47bc;
         }
     </style>
@@ -92,9 +97,25 @@ include_once("header.php");
             } else {
                 echo "<p>No categories available.</p>";
             }
-            $conn->close();
             ?>
+        </div>
+
+        <h2>Products on Offer</h2>
+        <div class="product-container">
+            <?php if (!empty($products)) : ?>
+                <?php foreach ($products as $product) : ?>
+                    <div class="product-item">
+                        <img src="assets/ECAD2024Oct_Assignment_1_Input_Files(1)/ECAD2024Oct_Assignment_1_Input_Files/Images/Products/<?php echo htmlspecialchars($product['ProductImage']); ?>" alt="<?php echo htmlspecialchars($product['ProductTitle']); ?>">
+                        <h3><?php echo htmlspecialchars($product['ProductTitle']); ?></h3>
+                        <p><s>$<?php echo number_format($product['Price'], 2); ?></s> $<?php echo number_format($product['OfferedPrice'], 2); ?></p>
+                        <a href="productpage.php?ProductID=<?php echo urlencode($product['ProductID']); ?>" class="btn">View Details</a>
+                    </div>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <p>No products are on offer at the moment.</p>
+            <?php endif; ?>
         </div>
     </div>
 </body>
 </html>
+
