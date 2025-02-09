@@ -35,27 +35,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (empty($name) || empty($email) || empty($password) || empty($address) || empty($phone) || empty($pwdAnswer)) {
             $errorMessage = "All required fields must be filled!";
         } else {
-            $check_sql = "SELECT * FROM Shopper WHERE Email = ?";
-            $stmt = $conn->prepare($check_sql);
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-
-            if ($result->num_rows > 0) {
-                $errorMessage = "Email is already registered!";
+            // --- New Phone Validation Start ---
+            // Use the raw phone number as entered by the user.
+            $rawPhone = $phone;
+            // If the phone number starts with "(65)", remove it for validation.
+            if (strpos($rawPhone, "(65)") === 0) {
+                $numberPart = trim(substr($rawPhone, 4));
             } else {
-                if (strpos($phone, "(65)") !== 0) {
-                    $phone = "(65) " . $phone;
-                }
-                $insert_sql = "INSERT INTO Shopper (Name, Email, Password, Address, Phone, BirthDate, Country, PwdQuestion, PwdAnswer, ActiveStatus) 
-                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
-                $stmt = $conn->prepare($insert_sql);
-                $stmt->bind_param("sssssssss", $name, $email, $password, $address, $phone, $birthDate, $country, $pwdQuestion, $pwdAnswer);
-
-                if ($stmt->execute()) {
-                    $successMessage = "Registration successful! Redirecting to login...";
+                $numberPart = $rawPhone;
+            }
+            // Check that the first digit of the number part is either 6, 8, or 9.
+            if (!in_array(substr($numberPart, 0, 1), ['6', '8', '9'])) {
+                $errorMessage = "Phone number must start with 6, 8, or 9.";
+            }
+            // If phone validation passed, check for duplicate phone number.
+            if (empty($errorMessage)) {
+                // Ensure the phone number is stored with the "(65)" prefix.
+                if (strpos($rawPhone, "(65)") !== 0) {
+                    $phoneToCheck = "(65) " . $rawPhone;
                 } else {
-                    $errorMessage = "Error: Could not register. Please try again later.";
+                    $phoneToCheck = $rawPhone;
+                }
+                $checkPhoneSql = "SELECT * FROM Shopper WHERE Phone = ?";
+                $stmtPhone = $conn->prepare($checkPhoneSql);
+                $stmtPhone->bind_param("s", $phoneToCheck);
+                $stmtPhone->execute();
+                $resultPhone = $stmtPhone->get_result();
+                if ($resultPhone->num_rows > 0) {
+                    $errorMessage = "Phone number is already registered!";
+                }
+            }
+            // --- New Phone Validation End ---
+            
+            // If no error so far, check if email already exists.
+            if (empty($errorMessage)) {
+                $check_sql = "SELECT * FROM Shopper WHERE Email = ?";
+                $stmt = $conn->prepare($check_sql);
+                $stmt->bind_param("s", $email);
+                $stmt->execute();
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    $errorMessage = "Email is already registered!";
+                } else {
+                    // Prepend (65) if not already present.
+                    if (strpos($rawPhone, "(65)") !== 0) {
+                        $phone = "(65) " . $rawPhone;
+                    } else {
+                        $phone = $rawPhone;
+                    }
+                    $insert_sql = "INSERT INTO Shopper (Name, Email, Password, Address, Phone, BirthDate, Country, PwdQuestion, PwdAnswer, ActiveStatus) 
+                                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+                    $stmt = $conn->prepare($insert_sql);
+                    $stmt->bind_param("sssssssss", $name, $email, $password, $address, $phone, $birthDate, $country, $pwdQuestion, $pwdAnswer);
+
+                    if ($stmt->execute()) {
+                        $successMessage = "Registration successful! Redirecting to login...";
+                    } else {
+                        $errorMessage = "Error: Could not register. Please try again later.";
+                    }
                 }
             }
         }
