@@ -11,7 +11,7 @@ $navItems = [
     "Home" => "index.php",
     "Products" => "productListing.php",
     "Categories" => "categories.php",
-    "ShoppingCart" => "shoppingCart.php" // Shopping cart icon placement
+    "ShoppingCart" => "cart.php" // Shopping cart icon placement
 ];
 ?>
 

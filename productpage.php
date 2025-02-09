@@ -1,62 +1,85 @@
 <?php
-// Include the database connection
-include 'db_connection.php';
+session_start();
+require 'db_connection.php';
 include_once("header.php");
+
+// Ensure user is logged in before adding to cart
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
 
 // Initialize variables to store product details
 $productTitle = $productDesc = $productPrice = $productImage = "";
-$productQuantity = 0; // Initialize quantity variable
+$productQuantity = 0;
 
 // Check if ProductID is provided in the URL
 if (isset($_GET['ProductID'])) {
     $productID = $_GET['ProductID'];
-
-    // Validate and sanitize the input to prevent SQL injection
     if (filter_var($productID, FILTER_VALIDATE_INT)) {
-
-        // Create a query to fetch the product details
         $query = "SELECT * FROM product WHERE ProductID = $productID";
-        
-        // Execute the query using MySQLi
         $result = mysqli_query($conn, $query);
-
-        // Check if the query was successful
         if ($result) {
-            // Fetch the product details
             $product = mysqli_fetch_assoc($result);
-
-            // Check if the product exists
             if ($product) {
-                // Populate product details
                 $productTitle = htmlspecialchars($product['ProductTitle']);
                 $productDesc = htmlspecialchars($product['ProductDesc']);
                 $productPrice = htmlspecialchars($product['Price']);
                 $productImage = htmlspecialchars($product['ProductImage']);
-                $productQuantity = intval($product['Quantity']); // Get quantity level
+                $productQuantity = intval($product['Quantity']);
             } else {
-                // If no product is found, show an error message
                 echo "Product not found.";
                 exit;
             }
         } else {
-            // If the query fails, show an error message
             echo "Error executing query: " . mysqli_error($conn);
             exit;
         }
     } else {
-        // If ProductID is not valid, show an error message
         echo "Invalid Product ID.";
         exit;
     }
 } else {
-    // If no ProductID is provided, show an error message
     echo "No product ID provided.";
     exit;
 }
 
-// Close the database connection
+// Handle adding to cart
+if (isset($_POST['add_to_cart'])) {
+    $quantity = intval($_POST['quantity']);
+    if ($quantity > 0 && $quantity <= $productQuantity) {
+        if (!isset($_SESSION['cart'][$user_id])) {
+            $_SESSION['cart'][$user_id] = [];
+        }
+        if (!isset($_SESSION['cart'][$user_id][$productID])) {
+            $_SESSION['cart'][$user_id][$productID] = ['quantity' => $quantity, 'price' => $productPrice];
+        } else {
+            $_SESSION['cart'][$user_id][$productID]['quantity'] += $quantity;
+        }
+        header("Location: cart.php");
+        exit();
+    } else {
+        echo "<script>alert('Invalid quantity. Please select a valid amount.');</script>";
+    }
+}
+
+// Handle Buy Now
+if (isset($_POST['buy_now'])) {
+    $quantity = intval($_POST['quantity']);
+    if ($quantity > 0 && $quantity <= $productQuantity) {
+        $_SESSION['cart'][$user_id] = [$productID => ['quantity' => $quantity, 'price' => $productPrice]];
+        header("Location: checkout.php");
+        exit();
+    } else {
+        echo "<script>alert('Invalid quantity. Please select a valid amount.');</script>";
+    }
+}
+
 mysqli_close($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -202,19 +225,13 @@ mysqli_close($conn);
     </style>
 </head>
 <body>
-
     <div class="container">
-        <!-- Product Image -->
         <div class="product-image">
             <img src="assets/ECAD2024Oct_Assignment_1_Input_Files(1)/ECAD2024Oct_Assignment_1_Input_Files/Images/Products/<?php echo $productImage; ?>" alt="<?php echo $productTitle; ?>">
         </div>
-
-        <!-- Product Details -->
         <div class="product-details">
             <h1 class="product-title"><?php echo $productTitle; ?></h1>
             <p class="price">$<?php echo number_format($productPrice, 2); ?></p>
-
-            <!-- Stock Status -->
             <div class="stock-status">
                 <?php if ($productQuantity > 0): ?>
                     <p class="in-stock">In Stock</p>
@@ -223,20 +240,19 @@ mysqli_close($conn);
                     <p class="out-of-stock">Out of Stock</p>
                 <?php endif; ?>
             </div>
-
-            <!-- Description -->
             <div class="product-description">
                 <h3>About this item</h3>
                 <p><?php echo $productDesc; ?></p>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="actions">
-                <button class="buy-now" <?php echo $productQuantity > 0 ? '' : 'disabled'; ?>>Buy Now</button>
-                <button class="add-to-cart">Add to Cart</button>
-            </div>
+            <form method="post">
+                <label for="quantity">Quantity:</label>
+                <input type="number" name="quantity" min="1" max="<?php echo $productQuantity; ?>" value="1" required>
+                <div class="actions">
+                    <button type="submit" name="buy_now" class="buy-now" <?php echo $productQuantity > 0 ? '' : 'disabled'; ?>>Buy Now</button>
+                    <button type="submit" name="add_to_cart" class="add-to-cart" <?php echo $productQuantity > 0 ? '' : 'disabled'; ?>>Add to Cart</button>
+                </div>
+            </form>
         </div>
     </div>
-
 </body>
 </html>
