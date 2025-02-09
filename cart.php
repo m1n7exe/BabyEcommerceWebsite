@@ -51,20 +51,26 @@ if (isset($_POST['add_to_cart'])) {
 }
 
 // Handle quantity update
+$validation_errors = []; // Store validation messages
+
 if (isset($_POST['update'])) {
     foreach ($_POST['quantities'] as $id => $qty) {
         $stock_query = "SELECT Quantity FROM Product WHERE ProductID = $id";
         $stock_result = mysqli_query($conn, $stock_query);
         $stock = mysqli_fetch_assoc($stock_result)['Quantity'];
-        
+
         if ($qty > 0 && $qty <= $stock) {
             $_SESSION['cart'][$user_id][$id]['quantity'] = $qty;
         } else {
-            echo "<script>alert('Cannot update quantity beyond available stock.');</script>";
+            // Add validation message
+            $validation_errors[$id] = "Stock available: $stock, but you entered: $qty.";
         }
     }
-    header("Location: cart.php");
-    exit();
+    // Reload the page only if there are no errors
+    if (empty($validation_errors)) {
+        header("Location: cart.php");
+        exit();
+    }
 }
 
 // Handle item removal from cart
@@ -90,7 +96,7 @@ if ($tax_row = mysqli_fetch_assoc($tax_result)) {
 $subtotal = 0; // Only the sum of products
 $total_price = 0;
 $total_items = 0;
-$delivery_charge = 10;
+$delivery_charge = isset($_POST['delivery_mode']) && $_POST['delivery_mode'] === 'Normal' ? 5 : 10;
 $cart_items = [];
 
 if (!empty($_SESSION['cart'][$user_id])) {
@@ -122,7 +128,6 @@ $tax_amount = ($subtotal * $tax_rate) / 100;
 // Total price should now be: subtotal + delivery + GST
 $total_price = $subtotal + $delivery_charge + $tax_amount;
 ?>
-
 
 <!DOCTYPE html>
 <html>
@@ -199,6 +204,32 @@ $total_price = $subtotal + $delivery_charge + $tax_amount;
             border-radius: 5px;
             font-size: 18px;
         }
+        .delivery-form {
+            text-align: right; /* Aligns the form with total price */
+            margin-top: 10px; /* Adds space between total price and form */
+            font-size: 16px; /* Matches the total price font size */
+        }
+        .delivery-form p {
+            font-weight: bold;
+        }
+        .delivery-form label {
+            display: block; /* Ensures radio buttons appear in a vertical layout */
+            margin: 5px 0;
+        }
+        .total-summary {
+            text-align: right; /* Aligns with the delivery form */
+            margin-top: 15px; /* Adds space */
+            font-size: 16px; /* Default size for subtotals */
+        }
+        .total-summary p {
+            margin: 10px 0;
+            font-weight: bold; /* Ensures normal weight for smaller values */
+        }
+        .total-summary .total-price {
+            font-size: 18px; /* Makes the total price the biggest */
+            font-weight: bold; /* Makes it stand out */
+            color: red; /* Highlights it in red */
+        }
     </style>
 </head>
 <div class="cart-container">
@@ -233,18 +264,41 @@ $total_price = $subtotal + $delivery_charge + $tax_amount;
                                 S$<?= number_format($item['Price'], 2) ?>
                             <?php endif; ?>
                         </td>
-                        <td><input type="number" name="quantities[<?= $item['ProductID'] ?>]" value="<?= $item['quantity'] ?>" min="1"></td>
+                        <td>
+                            <input type="number" name="quantities[<?= $item['ProductID'] ?>]" value="<?= $item['quantity'] ?>" min="1">
+                            <?php if (isset($validation_errors[$item['ProductID']])): ?>
+                                <p style="color: red; font-size: 12px;"><?= $validation_errors[$item['ProductID']] ?></p>
+                            <?php endif; ?>
+                        </td>
                         <td>S$<?= number_format($item['subtotal'], 2) ?></td>
                         <td><a href="cart.php?remove=<?= $item['ProductID'] ?>" class="remove-btn">Remove</a></td>
                     </tr>
                 <?php endforeach; ?>
-            </table>
-            <p class="total">Subtotal: S$<?= number_format($subtotal, 2) ?></p>
-            <p class="total">Delivery Charge: S$<?= number_format($delivery_charge, 2) ?></p>
-            <p class="total">GST (<?= $tax_rate ?>%): S$<?= number_format($tax_amount, 2) ?></p>
-            <p class="total">Total Price: S$<?= number_format($total_price, 2) ?></p>
+            </table>   
+            <div class="delivery-form">
+                <p>Please select a delivery mode:</p>
+                <label>
+                    <input type="radio" name="delivery_mode" value="Normal" 
+                        <?= isset($_POST['delivery_mode']) && $_POST['delivery_mode'] === 'Normal' ? 'checked' : '' ?> 
+                        onchange="this.form.submit()"> 
+                    Normal Delivery (S$5.00)
+                </label>
+                <label>
+                    <input type="radio" name="delivery_mode" value="Express" 
+                        <?= isset($_POST['delivery_mode']) && $_POST['delivery_mode'] === 'Express' ? 'checked' : '' ?> 
+                        onchange="this.form.submit()"> 
+                    Express Delivery (S$10.00)
+                </label>
+            </div>
+            <div class="total-summary">
+                <p>Subtotal: S$<?= number_format($subtotal, 2) ?></p>
+                <p>Delivery Charge: S$<?= number_format($delivery_charge, 2) ?></p>
+                <p>GST (<?= $tax_rate ?>%): S$<?= number_format($tax_amount, 2) ?></p>
+                <p class="total-price">Total Price: S$<?= number_format($total_price, 2) ?></p>
+            </div>
+            
             <button type="submit" name="update" class="update-btn">Update Cart</button>
-            <a href="checkout.php" class="checkout-btn">Proceed to Checkout</a>
+            <a href="checkoutProcess.php" class="checkout-btn">Proceed to Checkout</a>        
         </form>
     <?php endif; ?>
 </div>

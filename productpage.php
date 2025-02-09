@@ -4,12 +4,12 @@ require 'db_connection.php';
 include_once("header.php");
 
 // Ensure user is logged in before adding to cart
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['ShopperID'])) {
     header("Location: login.php");
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['ShopperID'];
 
 // Initialize variables to store product details
 $productTitle = $productDesc = $productPrice = $productImage = "";
