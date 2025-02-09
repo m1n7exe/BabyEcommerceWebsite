@@ -231,7 +231,18 @@ mysqli_close($conn);
         </div>
         <div class="product-details">
             <h1 class="product-title"><?php echo $productTitle; ?></h1>
-            <p class="price">$<?php echo number_format($productPrice, 2); ?></p>
+            <?php
+            // Determine if the product has a discount
+            $discountedPrice = (!empty($product['OfferedPrice']) && $product['OfferedPrice'] > 0) ? $product['OfferedPrice'] : $product['Price'];
+            ?>
+            <p class="price">
+                <?php if (!empty($product['OfferedPrice']) && $product['OfferedPrice'] > 0): ?>
+                    <s style="color: gray;">$<?php echo number_format($product['Price'], 2); ?></s>
+                    <span style="color: #b12704; font-weight: bold;">$<?php echo number_format($product['OfferedPrice'], 2); ?></span>
+                <?php else: ?>
+                    $<?php echo number_format($product['Price'], 2); ?>
+                <?php endif; ?>
+            </p>
             <div class="stock-status">
                 <?php if ($productQuantity > 0): ?>
                     <p class="in-stock">In Stock</p>

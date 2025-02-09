@@ -4,12 +4,12 @@ require 'db_connection.php';
 include_once("header.php");
 
 // Ensure user is logged in before accessing cart
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['ShopperID'])) {
     header("Location: login.php");
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION['ShopperID'];
 
 // Initialize cart for each user
 if (!isset($_SESSION['cart'][$user_id])) {
@@ -31,26 +31,19 @@ if (isset($_POST['add_to_cart'])) {
     $product_id = $_POST['product_id'];
     $quantity = intval($_POST['quantity']);
 
-    // Fetch product stock
-    $stock_query = "SELECT Quantity FROM Product WHERE ProductID = $product_id";
-    $stock_result = mysqli_query($conn, $stock_query);
-    $stock = mysqli_fetch_assoc($stock_result)['Quantity'];
-
-    if ($quantity > 0 && $quantity <= $stock) {
-        if (!isset($_SESSION['cart'][$user_id][$product_id])) {
-            $_SESSION['cart'][$user_id][$product_id] = ['quantity' => $quantity];
-        } else {
-            $new_quantity = $_SESSION['cart'][$user_id][$product_id]['quantity'] + $quantity;
-            if ($new_quantity <= $stock) {
-                $_SESSION['cart'][$user_id][$product_id]['quantity'] = $new_quantity;
             } else {
-                echo "<script>alert('Cannot add more than available stock.');</script>";
+                $new_quantity = $_SESSION['cart'][$user_id][$product_id]['quantity'] + $quantity;
+                if ($new_quantity <= $stock) {
+                    $_SESSION['cart'][$user_id][$product_id]['quantity'] = $new_quantity;
+                } else {
+                    echo "<script>alert('Cannot add more than available stock.');</script>";
+                }
             }
+            header("Location: cart.php");
+            exit();
+        } else {
+            echo "<script>alert('Invalid quantity.');</script>";
         }
-        header("Location: cart.php");
-        exit();
-    } else {
-        echo "<script>alert('Invalid quantity.');</script>";
     }
 }
 
@@ -81,31 +74,52 @@ if (isset($_GET['remove'])) {
     exit();
 }
 
+// Fetch current GST rate
+$tax_rate = 0;
+$today = date('Y-m-d');
+$tax_query = "SELECT TaxRate FROM gst WHERE EffectiveDate <= '$today' ORDER BY EffectiveDate DESC LIMIT 1";
+$tax_result = mysqli_query($conn, $tax_query);
+if ($tax_row = mysqli_fetch_assoc($tax_result)) {
+    $tax_rate = $tax_row['TaxRate'];
+}
+
 // Fetch product details for cart items
-$cart_items = [];
+$subtotal = 0; // Only the sum of products
 $total_price = 0;
 $total_items = 0;
-$delivery_charge = 5;
+$delivery_charge = 10;
+$cart_items = [];
+
 if (!empty($_SESSION['cart'][$user_id])) {
     $ids = implode(',', array_keys($_SESSION['cart'][$user_id]));
-    $query = "SELECT * FROM Product WHERE ProductID IN ($ids)";
+    $query = "SELECT ProductID, ProductTitle, ProductImage, Price, OfferedPrice FROM Product WHERE ProductID IN ($ids)";
     $result = mysqli_query($conn, $query);
     while ($row = mysqli_fetch_assoc($result)) {
         $id = $row['ProductID'];
         $row['quantity'] = $_SESSION['cart'][$user_id][$id]['quantity'];
-        $row['subtotal'] = $row['Price'] * $row['quantity'];
+
+        // Use discounted price if available
+        $price = (!empty($row['OfferedPrice']) && $row['OfferedPrice'] > 0) ? $row['OfferedPrice'] : $row['Price'];
+        
+        $row['subtotal'] = $price * $row['quantity'];
         $cart_items[] = $row;
-        $total_price += $row['subtotal'];
+        $subtotal += $row['subtotal'];
         $total_items += $row['quantity'];
     }
 }
 
 // Waive delivery charge if subtotal is more than S$200
-if ($total_price > 200) {
+if ($subtotal > 200) {
     $delivery_charge = 0;
 }
-$total_price += $delivery_charge;
+
+// Calculate tax based on subtotal (not including delivery charge)
+$tax_amount = ($subtotal * $tax_rate) / 100;
+
+// Total price should now be: subtotal + delivery + GST
+$total_price = $subtotal + $delivery_charge + $tax_amount;
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -175,10 +189,14 @@ $total_price += $delivery_charge;
         }
 
         .total {
-            text-align: right;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
-            margin-top: 15px;
+            color: #333;
+            margin-top: 10px;
+            padding: 5px;
+            border-radius: 5px;
+            text-align: right;
+            display: block;
         }
 
         .shop-now {
@@ -194,61 +212,21 @@ $total_price += $delivery_charge;
     </style>
 </head>
 
-<body>
-    <div class="cart-container">
-        <h2>Shopping Cart</h2>
-        <p>Total Items in Cart: <?= $total_items ?></p>
-        <?php if (empty($cart_items)): ?>
-            <p>Your shopping cart is empty.</p>
-            <a href="productListing.php" class="shop-now">Go to Shopping Now</a>
-        <?php else: ?>
-            <form method="post">
-                <table>
                     <tr>
-                        <th>Product</th>
-                        <th>Price</th>
-                        <th>Quantity</th>
-                        <th>Subtotal</th>
-                        <th>Action</th>
+                        <td><?= htmlspecialchars($item['ProductTitle']) ?></td>
+                        <td>
+                            <img src="assets/ECAD2024Oct_Assignment_1_Input_Files(1)/ECAD2024Oct_Assignment_1_Input_Files/Images/Products/<?= htmlspecialchars($item['ProductImage']) ?>" 
+                            alt="<?= htmlspecialchars($item['ProductTitle']) ?>" style="width: 80px; height: auto;">
+                        </td>
+                        <td>
+                            <?php if (!empty($item['OfferedPrice']) && $item['OfferedPrice'] > 0 && $item['OfferedPrice'] < $item['Price']) : ?>
+                                <s>S$<?= number_format($item['Price'], 2) ?></s> 
+                                <span style="color: #d63384; font-weight: bold;">S$<?= number_format($item['OfferedPrice'], 2) ?></span>
+                            <?php else : ?>
+                                S$<?= number_format($item['Price'], 2) ?>
+                            <?php endif; ?>
+                        </td>
+                        <td><input type="number" name="quantities[<?= $item['ProductID'] ?>]" value="<?= $item['quantity'] ?>" min="1"></td>
+                        <td>S$<?= number_format($item['subtotal'], 2) ?></td>
+                        <td><a href="cart.php?remove=<?= $item['ProductID'] ?>" class="remove-btn">Remove</a></td>
                     </tr>
-                    <?php foreach ($cart_items as $item): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($item['ProductTitle']) ?></td>
-                            <td>S$<?= number_format($item['Price'], 2) ?></td>
-                            <td><input type="number" name="quantities[<?= $item['ProductID'] ?>]"
-                                    value="<?= $item['quantity'] ?>" min="1"></td>
-                            <td>S$<?= number_format($item['subtotal'], 2) ?></td>
-                            <td><a href="cart.php?remove=<?= $item['ProductID'] ?>" class="remove-btn">Remove</a></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </table>
-                <p class="total">Subtotal: S$<?= number_format($total_price - $delivery_charge, 2) ?></p>
-                <p class="total">Delivery Charge: S$<?= number_format($delivery_charge, 2) ?></p>
-                <p class="total">Total Price: S$<?= number_format($total_price, 2) ?></p>
-                <button type="submit" name="update" class="update-btn">Update Cart</button>
-            </form>
-
-            <form method='post' action="checkoutProcess.php">
-                <input type='image' style='float:right;' src='https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif'>
-            </form>
-
-
-            <td>
-                <form method="post" style="padding-left:20px">
-                    <!-- After clicking the submit button, the default dropdown value will be retained -->
-                    <!-- Display a label for the dropdown list -->
-                    <label for="deliveryMode">Mode of Delivery:</label>
-                    <select name="mod" style="width: 200px; height: 30px;">
-                        <option value="">Select Mode of Delivery</option>
-                        <option value="Normal">Normal Delivery ($5.00)</option>
-                        <option value="Express">Express Delivery ($10.00)</option>
-                    </select>
-                    <input type="submit" name="submit" style="width: 100px; height: 30px;">
-                </form>
-            </td>
-
-        <?php endif; ?>
-    </div>
-</body>
-
-</html>
