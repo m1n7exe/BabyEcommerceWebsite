@@ -48,7 +48,7 @@ $resultFeedback = $conn->query($query);
   <style>
     body {
       font-family: Arial, sans-serif;
-      background-color: #f8f9fa;
+      background-color: #fbb6c9;
       margin: 0;
       padding: 20px;
       position: relative; /* Needed for positioning the back button */
