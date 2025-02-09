@@ -23,6 +23,12 @@ $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
             background-color: #ffdee9;
             color: #333;
         }
+        h2 {
+            text-align: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
         .container {
             max-width: 1200px;
             margin: 20px auto;
@@ -89,11 +95,6 @@ $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Welcome to Baby E-Commerce</h1>
-        <p>Your one-stop shop for baby essentials</p>
-    </div>
-
     <div class="container">
         <h2>Products on Offer</h2>
         <div class="product-container">

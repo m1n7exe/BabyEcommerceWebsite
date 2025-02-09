@@ -6,7 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Define site-wide variables.
 $siteTitle = "Sustainability & Lifestyle Dashboard";
-$logoURL = "logo.png"; // Replace with the path to your logo file
+$logoURL = "assets/homepagephotos/baby.png"; // Replace with the path to your logo file
 
 // Updated navigation items include a Feedback button.
 $navItems = [
@@ -14,7 +14,7 @@ $navItems = [
     "Products"     => "productListing.php",
     "Categories"   => "categories.php",
     "Feedback"     => "feedback.php", // New Feedback link.
-    "ShoppingCart" => "cart.php",
+    "Shopping Cart" => "cart.php",
     "Profile"      => "profile.php"
 ];
 ?>
@@ -39,8 +39,8 @@ $navItems = [
       color: white;
       padding: 15px 30px;
     }
-    .header img {
-      height: 40px;
+    .header .logo img {
+      height: 100px; /* Increased logo size */
     }
     .nav {
       display: flex;
@@ -70,12 +70,25 @@ $navItems = [
     .logout-button:hover {
       background-color: #ff1f45; /* Darker shade for hover */
     }
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    .site-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-left: 15px; /* Space between logo and text */
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <div class="header">
+<div class="header">
     <div class="logo">
-      <img src="<?php echo $logoURL; ?>" alt="Site Logo">
+      <a href="index.php">
+        <img src="<?php echo $logoURL; ?>" alt="Site Logo">
+      </a>
+      <span class="site-title">BabyBoo E-commerce</span> <!-- Added Here -->
     </div>
     <nav class="nav">
       <?php foreach ($navItems as $name => $url): ?>
@@ -86,5 +99,3 @@ $navItems = [
       </form>
     </nav>
   </div>
-</body>
-</html>
