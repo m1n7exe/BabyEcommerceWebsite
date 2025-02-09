@@ -20,13 +20,13 @@ include_once("header.php");
         }
 
         header {
-    background-color: #ff69b4; /* Hot Pink */
-    color: white;
-    padding: 8px 0;  /* Reduced padding for a smaller header */
-    text-align: center;
-    font-size: 1.2rem;  /* Adjusted font size to be smaller */
-    margin-bottom: 10px;
-}
+                background-color: #ff69b4; /* Hot Pink */
+                color: white;
+                padding: 8px 0;  /* Reduced padding for a smaller header */
+                text-align: center;
+                font-size: 1.2rem;  /* Adjusted font size to be smaller */
+                margin-bottom: 10px;
+            }
 
         .container {
             max-width: 900px; /* Reduced container width */
@@ -39,18 +39,18 @@ include_once("header.php");
         }
 
         .category-card {
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between; /* Ensures the content is spaced evenly */
-    height: 100%; /* Makes the card stretch to fill available space */
-    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-}
+                background-color: white;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                text-align: center;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between; /* Ensures the content is spaced evenly */
+                height: 100%; /* Makes the card stretch to fill available space */
+                transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            }
 
 
         .category-card:hover {
