@@ -14,26 +14,23 @@ $user_id = $_SESSION['ShopperID'];
 // Initialize cart for each user
 if (!isset($_SESSION['cart'][$user_id])) {
     $_SESSION['cart'][$user_id] = [];
+    // To Do 5 (Practical 5):
+    // Declare an array to store the shopping cart items in session variable 
+    $_SESSION["cart"] = array();
+    // Store the shopping cart items in session variable as an associate array
+    $_SESSION["cart"][] = array(
+        "productId" => $row["ProductID"],
+        "name" => $row["Name"],
+        "price" => $row["Price"],
+        "quantity" => $row["Quantity"]
+    );
 }
 
 // Handle adding items to cart
 if (isset($_POST['add_to_cart'])) {
     $product_id = $_POST['product_id'];
     $quantity = intval($_POST['quantity']);
-    
-    // Fetch product stock and discounted price
-    $stock_query = "SELECT Quantity, Price, OfferedPrice FROM Product WHERE ProductID = $product_id";
-    $stock_result = mysqli_query($conn, $stock_query);
-    $product = mysqli_fetch_assoc($stock_result);
-    
-    if ($product) {
-        $stock = $product['Quantity'];
-        $originalPrice = $product['Price'];
-        $discountedPrice = (!empty($product['OfferedPrice']) && $product['OfferedPrice'] > 0) ? $product['OfferedPrice'] : $originalPrice;
 
-        if ($quantity > 0 && $quantity <= $stock) {
-            if (!isset($_SESSION['cart'][$user_id][$product_id])) {
-                $_SESSION['cart'][$user_id][$product_id] = ['quantity' => $quantity, 'price' => $discountedPrice];
             } else {
                 $new_quantity = $_SESSION['cart'][$user_id][$product_id]['quantity'] + $quantity;
                 if ($new_quantity <= $stock) {
@@ -56,7 +53,7 @@ if (isset($_POST['update'])) {
         $stock_query = "SELECT Quantity FROM Product WHERE ProductID = $id";
         $stock_result = mysqli_query($conn, $stock_query);
         $stock = mysqli_fetch_assoc($stock_result)['Quantity'];
-        
+
         if ($qty > 0 && $qty <= $stock) {
             $_SESSION['cart'][$user_id][$id]['quantity'] = $qty;
         } else {
@@ -126,6 +123,7 @@ $total_price = $subtotal + $delivery_charge + $tax_amount;
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Shopping Cart</title>
     <style>
@@ -136,6 +134,7 @@ $total_price = $subtotal + $delivery_charge + $tax_amount;
             background-color: #f7f7f7;
             color: #333;
         }
+
         .cart-container {
             max-width: 900px;
             margin: 50px auto;
@@ -145,21 +144,27 @@ $total_price = $subtotal + $delivery_charge + $tax_amount;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        th, td {
+
+        th,
+        td {
             padding: 15px;
             text-align: center;
             border: 1px solid #ddd;
         }
+
         th {
             background: #ff6681;
             color: white;
         }
-        button, a {
+
+        button,
+        a {
             padding: 12px 15px;
             margin-top: 10px;
             border: none;
@@ -167,18 +172,22 @@ $total_price = $subtotal + $delivery_charge + $tax_amount;
             text-decoration: none;
             border-radius: 5px;
         }
+
         .update-btn {
             background: #ffcc00;
             color: black;
         }
+
         .checkout-btn {
             background: #ff6681;
             color: white;
         }
+
         .remove-btn {
             background: #dc3545;
             color: white;
         }
+
         .total {
             font-size: 18px;
             font-weight: bold;
@@ -189,6 +198,7 @@ $total_price = $subtotal + $delivery_charge + $tax_amount;
             text-align: right;
             display: block;
         }
+
         .shop-now {
             display: inline-block;
             margin-top: 20px;
@@ -201,24 +211,7 @@ $total_price = $subtotal + $delivery_charge + $tax_amount;
         }
     </style>
 </head>
-<div class="cart-container">
-    <h2>Shopping Cart</h2>
-    <p>Total Items in Cart: <?= $total_items ?></p>
-    <?php if (empty($cart_items)): ?>
-        <p>Your shopping cart is empty.</p>
-        <a href="productListing.php" class="shop-now">Go to Shopping Now</a>
-    <?php else: ?>
-        <form method="post">
-            <table>
-                <tr>
-                    <th>Product</th>
-                    <th>Image</th> <!-- New Column for Image -->
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Subtotal</th>
-                    <th>Action</th>
-                </tr>
-                <?php foreach ($cart_items as $item): ?>
+
                     <tr>
                         <td><?= htmlspecialchars($item['ProductTitle']) ?></td>
                         <td>
@@ -237,15 +230,3 @@ $total_price = $subtotal + $delivery_charge + $tax_amount;
                         <td>S$<?= number_format($item['subtotal'], 2) ?></td>
                         <td><a href="cart.php?remove=<?= $item['ProductID'] ?>" class="remove-btn">Remove</a></td>
                     </tr>
-                <?php endforeach; ?>
-            </table>
-            <p class="total">Subtotal: S$<?= number_format($subtotal, 2) ?></p>
-            <p class="total">Delivery Charge: S$<?= number_format($delivery_charge, 2) ?></p>
-            <p class="total">GST (<?= $tax_rate ?>%): S$<?= number_format($tax_amount, 2) ?></p>
-            <p class="total">Total Price: S$<?= number_format($total_price, 2) ?></p>
-            <button type="submit" name="update" class="update-btn">Update Cart</button>
-            <a href="checkout.php" class="checkout-btn">Proceed to Checkout</a>
-        </form>
-    <?php endif; ?>
-</div>
-</html>

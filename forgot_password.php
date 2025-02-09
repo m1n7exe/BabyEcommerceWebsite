@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     body {
       font-family: Arial, sans-serif;
-      background-color: #f8f9fa;
+      background-color: #fbb6c9;
       /* Center the container using flexbox */
       display: flex;
       justify-content: center;
