@@ -14,7 +14,7 @@ $navItems = [
     "Products"     => "productListing.php",
     "Categories"   => "categories.php",
     "Feedback"     => "feedback.php", // New Feedback link.
-    "ShoppingCart" => "shoppingCart.php",
+    "ShoppingCart" => "cart.php",
     "Profile"      => "profile.php"
 ];
 ?>
