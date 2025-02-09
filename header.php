@@ -8,10 +8,11 @@ if (session_status() === PHP_SESSION_NONE) {
 $siteTitle = "Sustainability & Lifestyle Dashboard";
 $logoURL = "logo.png"; // Replace with the path to your logo file
 $navItems = [
-    "Home" => "index.php",
-    "Products" => "productListing.php",
-    "Categories" => "categories.php",
-    "ShoppingCart" => "shoppingCart.php" // Shopping cart icon placement
+    "Home"         => "index.php",
+    "Products"     => "productListing.php",
+    "Categories"   => "categories.php",
+    "ShoppingCart" => "shoppingCart.php",
+    "Profile"      => "profile.php" // Added Profile for editing user details
 ];
 ?>
 
@@ -84,7 +85,7 @@ $navItems = [
         <?php foreach ($navItems as $name => $url): ?>
             <a href="<?php echo $url; ?>"><?php echo $name; ?></a>
         <?php endforeach; ?>
-        <form action="logout.php" method="POST" style="margin: 0;">
+        <form action="signin.php" method="POST" style="margin: 0;">
             <button type="submit" class="logout-button">Logout</button>
         </form>
     </nav>

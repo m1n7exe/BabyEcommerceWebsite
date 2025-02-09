@@ -104,7 +104,7 @@
             <p>Your one-stop destination for baby care!</p>
             <button onclick="window.location.href='login.php';">Log In</button>
 
-            <button onclick="alert('Sign Up functionality coming soon!')">Sign Up</button>
+            <button onclick="window.location.href='signup.php';">Sign Up</button>
         </div>
     </div>
 </body>

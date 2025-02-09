@@ -19,11 +19,13 @@ if ($result->num_rows > 0) {
     
     // Compare the plain text password with the stored password
     if ($password == $user['Password']) {
-        // Start a session for the user
-        $_SESSION['user_id'] = $user['ShopperID'];  // Store user ID or other session data
-        $_SESSION['email'] = $user['Email'];  // Store the email of the logged-in user
-        $_SESSION['name'] = $user['Name'];  // Store the name of the logged-in user
-        header('Location: index.php');  // Redirect to the homepage after login
+        // Set the session variable using the same key as expected in profile.php
+        $_SESSION['ShopperID'] = $user['ShopperID'];
+        $_SESSION['email'] = $user['Email'];
+        $_SESSION['name'] = $user['Name'];
+        
+        // Redirect to the homepage (or any landing page)
+        header('Location: index.php');
         exit;
     } else {
         echo "Invalid password!";
