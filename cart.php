@@ -14,18 +14,28 @@ $user_id = $_SESSION['user_id'];
 // Initialize cart for each user
 if (!isset($_SESSION['cart'][$user_id])) {
     $_SESSION['cart'][$user_id] = [];
+    // To Do 5 (Practical 5):
+    // Declare an array to store the shopping cart items in session variable 
+    $_SESSION["cart"] = array();
+    // Store the shopping cart items in session variable as an associate array
+    $_SESSION["cart"][] = array(
+        "productId" => $row["ProductID"],
+        "name" => $row["Name"],
+        "price" => $row["Price"],
+        "quantity" => $row["Quantity"]
+    );
 }
 
 // Handle adding items to cart
 if (isset($_POST['add_to_cart'])) {
     $product_id = $_POST['product_id'];
     $quantity = intval($_POST['quantity']);
-    
+
     // Fetch product stock
     $stock_query = "SELECT Quantity FROM Product WHERE ProductID = $product_id";
     $stock_result = mysqli_query($conn, $stock_query);
     $stock = mysqli_fetch_assoc($stock_result)['Quantity'];
-    
+
     if ($quantity > 0 && $quantity <= $stock) {
         if (!isset($_SESSION['cart'][$user_id][$product_id])) {
             $_SESSION['cart'][$user_id][$product_id] = ['quantity' => $quantity];
@@ -50,7 +60,7 @@ if (isset($_POST['update'])) {
         $stock_query = "SELECT Quantity FROM Product WHERE ProductID = $id";
         $stock_result = mysqli_query($conn, $stock_query);
         $stock = mysqli_fetch_assoc($stock_result)['Quantity'];
-        
+
         if ($qty > 0 && $qty <= $stock) {
             $_SESSION['cart'][$user_id][$id]['quantity'] = $qty;
         } else {
@@ -99,6 +109,7 @@ $total_price += $delivery_charge;
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Shopping Cart</title>
     <style>
@@ -109,6 +120,7 @@ $total_price += $delivery_charge;
             background-color: #f7f7f7;
             color: #333;
         }
+
         .cart-container {
             max-width: 900px;
             margin: 50px auto;
@@ -118,21 +130,27 @@ $total_price += $delivery_charge;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        th, td {
+
+        th,
+        td {
             padding: 15px;
             text-align: center;
             border: 1px solid #ddd;
         }
+
         th {
             background: #ff6681;
             color: white;
         }
-        button, a {
+
+        button,
+        a {
             padding: 12px 15px;
             margin-top: 10px;
             border: none;
@@ -140,24 +158,29 @@ $total_price += $delivery_charge;
             text-decoration: none;
             border-radius: 5px;
         }
+
         .update-btn {
             background: #ffcc00;
             color: black;
         }
+
         .checkout-btn {
             background: #ff6681;
             color: white;
         }
+
         .remove-btn {
             background: #dc3545;
             color: white;
         }
+
         .total {
             text-align: right;
             font-size: 20px;
             font-weight: bold;
             margin-top: 15px;
         }
+
         .shop-now {
             display: inline-block;
             margin-top: 20px;
@@ -170,6 +193,7 @@ $total_price += $delivery_charge;
         }
     </style>
 </head>
+
 <body>
     <div class="cart-container">
         <h2>Shopping Cart</h2>
@@ -191,7 +215,8 @@ $total_price += $delivery_charge;
                         <tr>
                             <td><?= htmlspecialchars($item['ProductTitle']) ?></td>
                             <td>S$<?= number_format($item['Price'], 2) ?></td>
-                            <td><input type="number" name="quantities[<?= $item['ProductID'] ?>]" value="<?= $item['quantity'] ?>" min="1"></td>
+                            <td><input type="number" name="quantities[<?= $item['ProductID'] ?>]"
+                                    value="<?= $item['quantity'] ?>" min="1"></td>
                             <td>S$<?= number_format($item['subtotal'], 2) ?></td>
                             <td><a href="cart.php?remove=<?= $item['ProductID'] ?>" class="remove-btn">Remove</a></td>
                         </tr>
@@ -201,9 +226,29 @@ $total_price += $delivery_charge;
                 <p class="total">Delivery Charge: S$<?= number_format($delivery_charge, 2) ?></p>
                 <p class="total">Total Price: S$<?= number_format($total_price, 2) ?></p>
                 <button type="submit" name="update" class="update-btn">Update Cart</button>
-                <a href="checkout.php" class="checkout-btn">Proceed to Checkout</a>
             </form>
+
+            <form method='post' action="checkoutProcess.php">
+                <input type='image' style='float:right;' src='https://www.paypal.com/en_US/i/btn/btn_xpressCheckout.gif'>
+            </form>
+
+
+            <td>
+                <form method="post" style="padding-left:20px">
+                    <!-- After clicking the submit button, the default dropdown value will be retained -->
+                    <!-- Display a label for the dropdown list -->
+                    <label for="deliveryMode">Mode of Delivery:</label>
+                    <select name="mod" style="width: 200px; height: 30px;">
+                        <option value="">Select Mode of Delivery</option>
+                        <option value="Normal">Normal Delivery ($5.00)</option>
+                        <option value="Express">Express Delivery ($10.00)</option>
+                    </select>
+                    <input type="submit" name="submit" style="width: 100px; height: 30px;">
+                </form>
+            </td>
+
         <?php endif; ?>
     </div>
 </body>
+
 </html>

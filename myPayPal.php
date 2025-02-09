@@ -1,13 +1,13 @@
 <?php
 $PayPalMode = 'sandbox';//sandbox or live
-$PayPalApiUsername = 'sb-81ufd37397678_api1.business.example.com'; 		//PayPal API Username
-$PayPalApiPassword = 'TULXGF9H49LXHSZQ'; 		//Paypal API password
-$PayPalApiSignature = 'AoiCBNGVMlgj2ndAkLS-nFk5d9sfAnHkvyxP-0e7csuIoA5Yvs81-ISy'; 		//Paypal API Signature
+$PayPalApiUsername = 'sb-kcpkf37397643_api1.business.example.com'; 		//PayPal API Username
+$PayPalApiPassword = 'MV5BVRLMLQEUSGYA'; 		//Paypal API password
+$PayPalApiSignature = 'A21kmBLyRcQpDSjYvmswlm3ckjahAAksguQSOdu1G0KWxq99nxGTyK.a'; 		//Paypal API Signature
 $PayPalCurrencyCode = 'SGD'; 	//Paypal Currency Code
 //URL to redirect to after PayPal has complete the online payment
 $PayPalReturnURL = 'http://localhost:8081//BabyEcommerceWebsite/checkoutProcess.php';
 //URL to redirect to if user clicks cancel                
-$PayPalCancelURL = 'http://localhost:8081//BabyEcommerceWebsite/shoppingCart.php';
+$PayPalCancelURL = 'http://localhost:8081//BabyEcommerceWebsite/cart.php';
 
 function PPHttpPost(
     $methodName_,
