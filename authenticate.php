@@ -20,7 +20,7 @@ if ($result->num_rows > 0) {
     // Compare the plain text password with the stored password
     if ($password == $user['Password']) {
         // Start a session for the user
-        $_SESSION['user_id'] = $user['ShopperID'];  // Store user ID or other session data
+        $_SESSION['ShopperID'] = $user['ShopperID'];  // Store user ID or other session data
         $_SESSION['email'] = $user['Email'];  // Store the email of the logged-in user
         $_SESSION['name'] = $user['Name'];  // Store the name of the logged-in user
         header('Location: index.php');  // Redirect to the homepage after login
