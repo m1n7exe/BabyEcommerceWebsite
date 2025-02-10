@@ -2,6 +2,20 @@
 session_start();
 require 'db_connection.php';
 
+// Store the cart before resetting the session
+$cart_backup = $_SESSION['cart'] ?? [];
+
+// Clear only user-related session variables, but keep the cart
+unset($_SESSION['ShopperID']);
+unset($_SESSION['Name']);
+session_regenerate_id(true); // Prevent session fixation attacks
+
+// Restore the cart after resetting session
+$_SESSION['cart'] = $cart_backup;
+
+// Fetch user details after successful login
+$_SESSION['ShopperID'] = $user_id; // Set the logged-in user ID
+
 // Get form inputs
 $email = $_POST['email'];
 $password = $_POST['password'];
