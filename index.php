@@ -3,10 +3,42 @@ session_start();
 require 'db_connection.php';
 include_once("header.php");
 
+// Ensure user is logged in
+if (!isset($_SESSION['ShopperID'])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['ShopperID'];
+
+// Fetch user name if not already stored in session
+if (!isset($_SESSION['Name'])) {
+    $user_query = "SELECT Name FROM Shopper WHERE ShopperID = ?";
+    $stmt = $conn->prepare($user_query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($user = $result->fetch_assoc()) {
+        $_SESSION['Name'] = $user['Name']; // Store name in session
+    }
+    $stmt->close();
+}
+
+// Get the user's name from the session
+$shopper_name = $_SESSION['Name'] ?? 'Guest';
+
 // Fetch products on offer with valid offer dates
 $query = "SELECT * FROM Product WHERE Offered = 1 AND OfferStartDate <= CURDATE() AND OfferEndDate >= CURDATE()";
 $result = mysqli_query($conn, $query);
 $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+// Count total items in the cart
+$total_items_in_cart = 0;
+if (isset($_SESSION['cart'][$user_id]) && !empty($_SESSION['cart'][$user_id])) {
+    foreach ($_SESSION['cart'][$user_id] as $item) {
+        $total_items_in_cart += $item['quantity'];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -16,6 +48,14 @@ $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Baby E-Commerce</title>
     <style>
+        .header-container {
+            text-align: center;
+            font-size: 22px; /* Increase font size */
+            font-weight: bold;
+            padding: 15px;
+            color: black;
+            margin-bottom: 20px;
+        }
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -92,9 +132,25 @@ $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
         .product-item a:hover {
             background-color: #ff5277;
         }
+        .cart-info {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .cart-info span {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
+    <!-- Welcome Message -->
+    <div class="header-container">
+    Welcome, <span><?php echo htmlspecialchars($shopper_name); ?></span>!
+    </div>
+    <div class="cart-info">
+    You have <span><?php echo $total_items_in_cart; ?></span> item(s) in your cart.
+    </div>
     <div class="container">
         <h2>Products on Offer</h2>
         <div class="product-container">
