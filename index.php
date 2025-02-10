@@ -32,11 +32,21 @@ $query = "SELECT * FROM Product WHERE Offered = 1 AND OfferStartDate <= CURDATE(
 $result = mysqli_query($conn, $query);
 $products = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
+// Ensure session cart is initialized as an array
+if (!isset($_SESSION['cart']) || !is_array($_SESSION['cart'])) {
+    $_SESSION['cart'] = [];
+}
+if (!isset($_SESSION['cart'][$user_id]) || !is_array($_SESSION['cart'][$user_id])) {
+    $_SESSION['cart'][$user_id] = [];
+}
+
 // Count total items in the cart
 $total_items_in_cart = 0;
-if (isset($_SESSION['cart'][$user_id]) && !empty($_SESSION['cart'][$user_id])) {
+if (!empty($_SESSION['cart'][$user_id])) {
     foreach ($_SESSION['cart'][$user_id] as $item) {
-        $total_items_in_cart += $item['quantity'];
+        if (is_array($item) && isset($item['quantity'])) {
+            $total_items_in_cart += $item['quantity'];
+        }
     }
 }
 ?>
